@@ -1,46 +1,61 @@
-module edge() {
+module edge(l) {
     hull() {
-        cylinder(r=10,h=10);
-        translate([50,0,0])
-        cylinder(r=10,h=10);
+        cylinder(r=5,h=10);
+        translate([l,0,0])
+        cylinder(r=5,h=10);
     }
 }
 
-module side() {
-    difference() {
-        union() {
-            edge();
-            rotate(60) {
-            edge();
-            }
+module side(l) {
+    union() {
+        edge(l);
+        rotate(240)
+        mirror()
+        edge(l);
+    }
+}
+
+module base(r, d){
+    difference(){
+        cylinder(r=r, h=d);
+        translate([0,0,-1])
+        cylinder(r=r-20, h=d+2);
+    }
+}
+
+side_length = 42;
+pin_length = 34;
+
+module pin(r, h) {
+    intersection(){
+        union(){
+            cylinder(r=r, h=h);
+            translate([-5,-10,-15])
+            cube([10,20,h+30]);
         }
-        translate([0,0,-5])
-        cylinder(r=5, h=20, $fn=5);
-        translate([50,0,-5])
-        cylinder(r=5, h=20, $fn=5);
-        rotate(60)
-        translate([50,0,-5])
-        cylinder(r=5, h=20, $fn=5);
+        translate([0,0,-20])
+        cylinder(r=r, h=h+40);
     }
 }
 
-module pin(l) {
-    rotate([0,90,0]){
-        cylinder(r=5, h=l+20, $fn=5);
-        translate([0,0,10])
-        cylinder(r=8, h=l);
+union(){
+    base(41, 5);
+    lift = 42;
+    difference(){
+        union(){
+            translate([0, -pin_length/2, lift])
+            rotate([90,120,0])
+            side(side_length);
+            translate([0, pin_length/2+10, lift])
+            rotate([90,120,0])
+            side(side_length);
+        }
+        translate([0,pin_length/2,41])
+        rotate([90,0,0])
+        pin(r=8, h=pin_length);
     }
 }
 
-pin_length = 90;
-for (i = [0:2]) {
-    translate([0,i*20,8])
-    pin(pin_length);
-}
-
-translate([10,-70,0])
-side();
-
-translate([110,-40,0])
-rotate(180)
-side();
+translate([50,pin_length/2,8])
+rotate([90,0,0])
+pin(r=8, h=pin_length);
